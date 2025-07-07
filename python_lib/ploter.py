@@ -7,10 +7,14 @@ import seaborn as sns
 from sklearn.manifold import TSNE
 
 class Ploter:
-    def __init__(self,row=None,column=None,ratio=(16,9),scale=1,dpi=400) -> None:
+    def __init__(self,row=None,col=None,ratio=(16,9),scale=1,dpi=400) -> None:
         self.dpi = dpi
-        self.fig,self.axs =  plt.subplots(1) if row is None and column is None else plt.subplots(row, column)
-        self.fig.set_size_inches(ratio[0]*scale,ratio[1]*scale)
+        self.row = row
+        self.col = col
+        self.ratio = ratio
+        self.scale = scale
+        self.fig,self.axs =  plt.subplots(1) if self.row is None and self.col is None else plt.subplots(self.row, self.col)
+        self.fig.set_size_inches(self.ratio[0]*self.scale,self.ratio[1]*self.scale)
         plt.rcParams['figure.dpi'] = self.dpi
         plt.rcParams['savefig.dpi'] = self.dpi
         self.fontsize = 20
@@ -28,11 +32,17 @@ class Ploter:
     def close(self):
         plt.close(self.fig)
     
+    def reset(self):
+        self.close()
+        self.fig,self.axs =  plt.subplots(1) if self.row is None and self.col is None else plt.subplots(self.row, self.col)
+        self.fig.set_size_inches(self.ratio[0]*self.scale,self.ratio[1]*self.scale)
+    
     def savefig(self,path):
         folder_path = os.path.abspath(os.path.dirname(path) + os.path.sep + ".")
         if not os.path.exists(folder_path):os.makedirs(folder_path)
         #plt.tight_layout() 
         plt.savefig(path)
+        print(f'save figure: {path}')
     
     def save_rgb(self,path,data,title='image'):
         data = np.array(data)
@@ -64,12 +74,12 @@ class Ploter:
         ticks = np.round(ticks,decimals=decimals)
         axs.set_yticklabels(ticks, fontsize=fontsize)
     
-    def plot_lines(self,path,data):
+    def plot_lines(self,data,alpha=0,labels=None):
         x = np.arange(0,len(data[0]),1)
-        for line in data:
-            self.axs.plot(x,line)
-            self.axs.legend(x)
-        self.savefig(path)
+        if labels is None: labels = [str(i) for i in range(len(data))]
+        for i in range(len(data)):
+            self.axs.plot(x,data[i],alpha=alpha, label = labels[i])
+            self.axs.legend()
     
     def add_color_legend(self,label,color='black',idx=None):
         handles = mpatches.Patch(label=label,color=color) 
@@ -92,7 +102,7 @@ class Ploter:
         elif mode == 'sns_hist': sns.histplot(data, kde=True, stat='density',fill=True,ax=axs)
         #elif mode == 'sns_hist': sns.histplot(y=new_bin_edges,x=hist ,kde=True, stat='density',fill=True,ax=axs)
         elif mode == 'sns_dis': sns.displot(data, fill=True, kind="kde",ax=axs)
-        elif mode == 'sns_kde': sns.kdeplot(data,fill=True,ax=axs,label=label,linewidth=self.linewidth)
+        elif mode == 'sns_kde': sns.kdeplot(data,fill=True,ax=axs,label=label,linewidth=self.linewidth,color=color)
     
     def plot_tsne(self,path,data,label=None,text=True,label_text=None,
                   p={'n_components':2,'perplexity':50,'random_state':0}):
@@ -109,11 +119,12 @@ class Ploter:
         tsne_df = pd.DataFrame(data = tsne_data_pd,columns =("Dim_1", "Dim_2", "label"))
         #palette = sns.color_palette(None, n_colors = color_num)
         #palette = sns.color_palette("bright", color_num)
-        palette = sns.color_palette("Spectral", n_colors = color_num, as_cmap=True)
+        palette = sns.color_palette("husl", n_colors = color_num, as_cmap=True)
+        palette = sns.color_palette()
         axs = sns.scatterplot(data=tsne_df, x='Dim_1', y='Dim_2',hue='label', legend = False, palette=palette)
         #axs = sns.scatterplot(data=tsne_df, x='Dim_1', y='Dim_2', palette=palette)
         if text: 
-            for i in range(len(tsne_data)): axs.text(tsne_data[i][0]+0.01,tsne_data[i][1],str(int(label[i])),size='xx-small')
+            for i in range(len(tsne_data)): axs.text(tsne_data[i][0]+0.01,tsne_data[i][1],str(int(label[i])),size='x-small')
         #plt.legend(fontsize=20)
         self.savefig(path)
     

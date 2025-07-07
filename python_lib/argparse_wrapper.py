@@ -5,6 +5,9 @@ class ArgparseWrapper:
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument('-f','--function', type=str)
     
+    def split_str(self,argument):
+        if argument is not None: argument = argument.replace('_',' ')
+    
     def run(self):
         args = self.parser.parse_args()
         getattr(sys.modules[__name__], args.function)(args)
