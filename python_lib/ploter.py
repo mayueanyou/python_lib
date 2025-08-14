@@ -105,7 +105,7 @@ class Ploter:
         elif mode == 'sns_kde': sns.kdeplot(data,fill=True,ax=axs,label=label,linewidth=self.linewidth,color=color)
     
     def plot_tsne(self,path,data,label=None,text=True,label_text=None,
-                  p={'n_components':2,'perplexity':50,'random_state':0}):
+                  p={'n_components':2,'perplexity':50,'random_state':0,'alpha':0.5}):
         
         
         model = TSNE(n_components = p['n_components'], perplexity = p['perplexity'],random_state = p['random_state'])
@@ -119,9 +119,10 @@ class Ploter:
         tsne_df = pd.DataFrame(data = tsne_data_pd,columns =("Dim_1", "Dim_2", "label"))
         #palette = sns.color_palette(None, n_colors = color_num)
         #palette = sns.color_palette("bright", color_num)
-        palette = sns.color_palette("husl", n_colors = color_num, as_cmap=True)
-        palette = sns.color_palette()
-        axs = sns.scatterplot(data=tsne_df, x='Dim_1', y='Dim_2',hue='label', legend = False, palette=palette)
+        #palette = sns.color_palette("husl", n_colors = color_num, as_cmap=True)
+        #palette = sns.color_palette(['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
+        palette = sns.color_palette(['#1f77b4', "#970eff", '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
+        axs = sns.scatterplot(data=tsne_df, x='Dim_1', y='Dim_2',hue='label', legend = False, palette=palette,alpha=p['alpha'],s=150)
         #axs = sns.scatterplot(data=tsne_df, x='Dim_1', y='Dim_2', palette=palette)
         if text: 
             for i in range(len(tsne_data)): axs.text(tsne_data[i][0]+0.01,tsne_data[i][1],str(int(label[i])),size='x-small')
