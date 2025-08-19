@@ -1,4 +1,4 @@
-import os,sys,sklearn,itertools
+import os,sys,sklearn,itertools,skimage
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches 
 import numpy as np
@@ -133,6 +133,20 @@ class Ploter:
         self.axs.set_xscale('log')
         self.axs.plot(data, color='blue', lw=2)
         self.axs.legend()
+        self.savefig(path)
+    
+    def plot_detection(self, path, data):
+        self.axs.imshow(data['image'])
+        image_height, image_width = data['height'], data['width']
+        if data['plot_boxes']:
+            for box in data['boxes']:
+                x1, y1, width, height = box
+                x1,y1,width,height = x1*image_width, y1*image_height, width*image_width, height*image_height
+                rect = mpatches.Rectangle((x1, y1), width, height, linewidth=2, edgecolor='g', facecolor='none')
+                self.axs.add_patch(rect)
+        if data['plot_masks']:
+            for mask in data['masks']:
+                self.axs.imshow(mask, alpha=0.5 * (mask > 0), cmap='jet')
         self.savefig(path)
 
 def mtplot(row,column,data,path):
