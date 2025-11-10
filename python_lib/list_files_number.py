@@ -2,10 +2,11 @@ from pathlib import Path
 
 class Folder:
     def __init__(self,path) -> None:
+        #print(path)
         self.path = Path(path)
         self.folder_list = []
         self.file_list = []
-        for item in path.iterdir():
+        for item in self.path.iterdir():
             if item.is_dir(): self.folder_list.append(item)
             else: self.file_list.append(item)
     
@@ -28,9 +29,6 @@ class FolderMonitor:
     def total_files(self):
         return len([x for x in self.path.rglob('*') if x.is_file()])
 
-
-fm = FolderMonitor('.')
-
-
-
+if __name__ == '__main__':
+    fm = FolderMonitor('.')
 
